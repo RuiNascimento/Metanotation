@@ -2,6 +2,8 @@ import os
 from datetime import datetime, timedelta
 
 def update_cache(path, days=30):
+    if not os.path.isfile(path):
+        return True
     date_limit = datetime.now() - timedelta(days=days)
     file_date = datetime.fromtimestamp(os.path.getmtime(path))
     if file_date < date_limit:

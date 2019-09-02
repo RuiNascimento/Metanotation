@@ -1,12 +1,16 @@
 '''Parse kegg record from local cache. To add an option to get new record from rest.kegg or update local cache if too old'''
 
 import re
+import requests
 from collections import namedtuple
+from utilities import update_cache
 
 class Kegg:
     def __init__(self,kegg_id):
         self.name = kegg_id
         raw = []
+        if update_cache('cache/kegg/'+kegg_id, days=30):
+            self.update(self.name)
         with open('cache/kegg/'+self.name) as f:
             raw = f.readlines()
             f.close()
@@ -19,6 +23,18 @@ class Kegg:
         self.dict = {}
         self.classes = {}
 
+    def update(self,kegg_id):
+        times = 0
+        while times<3:
+            try:
+                f = requests.get('http://rest.kegg.jp/get/' + kegg_id)
+                # Testar se guarda o ficheiro
+                with open('cache/kegg/'+kegg_id ,'wb') as file:
+                    file.write(f.content)
+                break
+            except:
+                times+=1
+                pass
 
     #Functions for brite parsing
     LineData = namedtuple('LineData', 'indent text')
@@ -152,6 +168,7 @@ class Kegg:
             self.classes['k3'] = k3
             return (k1,k2,k3)
         return ('','','')
+
 
 # ############## test area 2 ##############
 # C00044 = Kegg('C00044')
