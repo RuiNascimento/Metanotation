@@ -1,13 +1,8 @@
-Kegg('C00001').get_classes()
-
-update_cache('cache/kegg/C00001', days=30)
-os.path.isfile('cache/kegg/C00001')
-import os
-
 '''
 This file is not close to be done, just a place holder for the main script.
 I'm working on the kegg_parser, lipidmaps_parser and common function first.
 '''
+import os
 import pandas as pd
 import json
 import re
