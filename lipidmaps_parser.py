@@ -9,7 +9,8 @@ def lipidmaps(id):
     # Check if file is in local cache and if it needs update
     if id in os.listdir('cache/lipidmaps/') and not update_cache('cache/lipidmaps/'+id, days=30) :
         #acrescentar um if para se o ficheiro estiver em branco, caso seja necessário no futuro
-        s = json.loads('cache/lipidmaps/'+id)
+        with open('cache/lipidmaps/'+id) as lm:
+            s = json.load(lm)
     else:
         times = 0
         while times<3:
@@ -17,14 +18,14 @@ def lipidmaps(id):
                 f = requests.get('http://www.lipidmaps.org/rest/compound/lm_id/' + id + '/all/json')
                 # Testar se guarda o ficheiro
                 with open('cache/lipidmaps/'+id ,'wb') as file:
-                    file.write(f.text)
+                    file.write(f.content)
                 s = json.loads(f.text)
                 break
             except:
                 times+=1
                 pass
 
-    if f.text == '[]':
+    if s['core'] == None:
         mm = 'null'
         cc = 'null'
         ss = 'null'
