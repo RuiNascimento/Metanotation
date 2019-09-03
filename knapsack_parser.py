@@ -1,8 +1,11 @@
+''' Get information from knapsack database if compound is already discribed in plants '''
+
 import requests
 from utilities import update_cache
 
 
 def knapsack_plants(ks_id):
+    ''' Check if conpound is in Plantae kingdom, also update local cache if necessary '''
     if update_cache('cache/knapsack/'+ks_id, days=30):
         ks_update(ks_id)
     with open('cache/knapsack/'+ks_id) as f:

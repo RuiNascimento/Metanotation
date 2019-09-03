@@ -1,4 +1,4 @@
-'''Parse kegg record from local cache. To add an option to get new record from rest.kegg or update local cache if too old'''
+'''Parse kegg record from local cache. Download new record from rest.kegg.jp or update local cache if too old'''
 
 import re
 import requests
@@ -6,6 +6,13 @@ from collections import namedtuple
 from utilities import update_cache
 
 class Kegg:
+    '''
+    Parse Kegg compound, and update local cache automatically if necessary.
+    Usage:  var = Kegg(id)      - define var (variable with id), id must be string (str), ex: id = 'C00001'
+            var.parse()         - to parse all the kegg record, to view result check var.dict
+            var.brite()         - only parses the brite class to var.dict['BRITE']
+            var.get_classes()   - return classes, parse brite in order to get classes (var.brite())
+    '''
     def __init__(self,kegg_id):
         self.name = kegg_id
         raw = []
