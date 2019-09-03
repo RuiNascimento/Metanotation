@@ -163,11 +163,12 @@ class Kegg:
                     k2.append(key2)
                     for key3 in self.dict['BRITE'][key][key2]:
                         k3.append(key3)
-            self.classes['k1'] = k1
-            self.classes['k2'] = k2
-            self.classes['k3'] = k3
+            self.classes['MC'] = k1
+            self.classes['C'] = k2
+            self.classes['SC'] = k3
             return (k1,k2,k3)
         return ('','','')
+
 
 
 # ############## test area 2 ##############
