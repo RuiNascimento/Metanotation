@@ -1,18 +1,26 @@
 '''
 This file is not close to be done, just a place holder for the main script.
-I'm working on the kegg_parser, lipidmaps_parser and common function first.
+I'm working on the parsers first
 '''
 import os
 import pandas as pd
 import json
 import re
 from collections import namedtuple
-from utilities import update_cache
+from utilities import *
 from kegg_parser import Kegg
 from lipidmaps_parser import lipidmaps
 from knapsack_parser import knapsack_plants
 import requests
+from io import StringIO
 
+
+def make_cache_dirs():
+    if not os.path.exists('cache') : os.mkdir('cache')
+    if not os.path.exists('cache/kegg') : os.mkdir('cache/kegg')
+    if not os.path.exists('cache/lipidmaps') : os.mkdir('cache/lipidmaps')
+    if not os.path.exists('cache/knapsack') : os.mkdir('cache/knapsack')
+    if not os.path.exists('cache/dblink') : os.mkdir('cache/dblink')
 
 def kegg_2_lipidmaps():
     try:
@@ -77,6 +85,11 @@ def kegg_2_knapsack():
 # Function to check id convertion and choose the appropriate id for annotation
 # Retirar os return dos if e apenas ter um return no final ??
 def annotate(id):
+    '''
+    Annotate an id based on database and relation to other databases
+    Check from with database the compound is from, check if there are any other convertion to other databases (if necessary)
+    Annotate the compound acordingly to the database
+    '''
     MC, C, SC, KS = '','','',''
     if id.startswith('C'):
         if id in kegg2knapsack:
@@ -95,45 +108,74 @@ def annotate(id):
     return (MC, C, SC, KS)
 
 
-annotate('HMDB02111')
+def annotate_cell(cell):
+    cell = list(cell.split("#"))
+    MC,C,SC,KS = [],[],[],[]
+    for code in cell:
+        result = annotate(code)
+        MC.append(result[0])
+        C.append(result[1])
+        SC.append(result[2])
+        KS.append(result[3])
+    for x in range(0,len(MC),1):
+        if type(MC[x]) == list:
+            MC[x] = "#".join(MC[x])
+    for x in range(0,len(C),1):
+        if type(C[x]) == list:
+            C[x] = "#".join(C[x])
+    for x in range(0,len(SC),1):
+        if type(SC[x]) == list:
+            SC[x] = "#".join(SC[x])
+    for x in range(0,len(KS),1):
+        if type(KS[x]) == list:
+            KS[x] = "#".join(KS[x])
+    MC = "#".join(set(MC)).lstrip('#')
+    C = "#".join(set(C)).lstrip('#')
+    SC = "#".join(set(SC)).lstrip('#')
+    KS = "#".join(set(KS)).lstrip('#')
+    col_names = ['Major Class',
+                 'Class',
+                 'Secondary Class',
+                 'KNApSAcK']
+    progress.tick()
+    return pd.Series((MC,C,SC,KS), index=col_names)
 
-# Run in main script!
+def masstrix_tsv(file):
+    tsv=[]
+    with open(file) as f:
+        for line in f.readlines():
+            tsv.append(line)
+    new_tsv = [tsv[-1]]
+    new_tsv.extend(tsv[:-1])
+    new_tsv = "\n".join(new_tsv)
+    df = pd.read_csv(StringIO(new_tsv), sep = '\t')
+    return df
+
+def cleanup_cols(df, isotopes=True, uniqueID=True, columns=None):
+    """Removes the 'uniqueID' and the 'isotope presence' columns."""
+    col_names = []
+    if uniqueID:
+        col_names.append('uniqueID')
+    if isotopes:
+        iso_names = ('C13','O18','N15', 'S34', 'Mg25', 'Mg26', 'Fe54',
+                     'Fe57', 'Ca44', 'Cl37', 'K41')
+        col_names.extend(iso_names)
+    if columns is not None:
+        col_names.extend(columns)
+    return df.drop(col_names, axis=1)
+
+
+#### Run in main script! ####
+# Create local cache folders if they dont exist
+make_cache_dirs()
 # Get the most recent 'id' convertions or use local cache (if no internet for example)
 kegg2lipidmaps = kegg_2_lipidmaps()
 hmdb2kegg = hmdb_2_kegg()
 kegg2knapsack = kegg_2_knapsack()
-
-# check if update is necessary for local cache
-update_cache('cache/kegg/C00033', days=30)
-
-file = pd.read_excel("test_files/positive.xlsx")
-file.head(20)
-test = file.KEGG_cid[3]
-test
-test = list(test.split("#"))
-test
+##############################
 
 
-for id in test:
-    if id.startswith('C'):
-        id = Kegg(id)
-        print(id.name)
-        id.get_classes()
-        print(id.dict)
-
-id = Kegg('C14175')
-id.parse()
-id.get_classes()
-id.dict
-
-
-C00050 = Kegg('C00044')
-
-C00050.parse()
-C00050.get_classes()
-a, b, c = C00050.get_classes()
-"#".join(set(a))
-
-C00050.dict
-
-C00050.dict['DBLINKS']
+df = masstrix_tsv('test_files/masses.annotated.reformat.tsv')
+df = cleanup_cols(df)
+progress = Progress(len(df['KEGG_cid']))
+df['KEGG_cid'].apply(annotate_cell)

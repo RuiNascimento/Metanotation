@@ -8,3 +8,6 @@ cache/kegg/
 cache/lipidmaps/
 cache/knapsack/
 cache/dblink/
+
+# Test cache
+cache.bak/*

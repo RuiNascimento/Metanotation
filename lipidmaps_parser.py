@@ -25,7 +25,7 @@ def lipidmaps(id):
                 times+=1
                 pass
 
-    if s['core'] == None:
+    if s == []:
         mm = 'null'
         cc = 'null'
         ss = 'null'
