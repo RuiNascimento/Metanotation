@@ -93,7 +93,7 @@ def annotate(id):
     MC, C, SC, KS = '','','',''
     if id.startswith('C'):
         if id in kegg2knapsack:
-            KS = knapsack_plants(id)
+            KS = knapsack_plants(kegg2knapsack[id])
         if id in kegg2lipidmaps:
           MC, C, SC, TC = lipidmaps(kegg2lipidmaps[id])
         else:
@@ -178,4 +178,8 @@ kegg2knapsack = kegg_2_knapsack()
 df = masstrix_tsv('test_files/masses.annotated.reformat.tsv')
 df = cleanup_cols(df)
 progress = Progress(len(df['KEGG_cid']))
-df['KEGG_cid'].apply(annotate_cell)
+df2 = df['KEGG_cid'].apply(annotate_cell)
+
+final_df = pd.concat([df, df2], axis=1, sort=False)
+
+final_df.to_csv('test_files/annotated.csv', index=False)
