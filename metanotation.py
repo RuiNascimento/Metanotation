@@ -164,22 +164,24 @@ def cleanup_cols(df, isotopes=True, uniqueID=True, columns=None):
         col_names.extend(columns)
     return df.drop(col_names, axis=1)
 
+if __name__ == "__main__":
+    #### Run this section to create cache folder and necessary dictionary for convertion ####
+    # Create local cache folders if they dont exist
+    make_cache_dirs()
+    # Get the most recent 'id' convertions or use local cache (if no internet for example)
+    kegg2lipidmaps = kegg_2_lipidmaps()
+    hmdb2kegg = hmdb_2_kegg()
+    kegg2knapsack = kegg_2_knapsack()
+    #########################################################################################
 
-#### Run in main script! ####
-# Create local cache folders if they dont exist
-make_cache_dirs()
-# Get the most recent 'id' convertions or use local cache (if no internet for example)
-kegg2lipidmaps = kegg_2_lipidmaps()
-hmdb2kegg = hmdb_2_kegg()
-kegg2knapsack = kegg_2_knapsack()
-##############################
+    file = 'test_files/masses.annotated.reformat.tsv'
+    output = 'test_files/annotated.csv'
 
+    df = masstrix_tsv(file)
+    df = cleanup_cols(df)
+    progress = Progress(len(df['KEGG_cid']))
+    df2 = df['KEGG_cid'].apply(annotate_cell)
 
-df = masstrix_tsv('test_files/masses.annotated.reformat.tsv')
-df = cleanup_cols(df)
-progress = Progress(len(df['KEGG_cid']))
-df2 = df['KEGG_cid'].apply(annotate_cell)
+    final_df = pd.concat([df, df2], axis=1, sort=False)
 
-final_df = pd.concat([df, df2], axis=1, sort=False)
-
-final_df.to_csv('test_files/annotated.csv', index=False)
+    final_df.to_csv(output, index=False)
