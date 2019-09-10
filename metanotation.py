@@ -175,7 +175,7 @@ if __name__ == "__main__":
     #########################################################################################
 
     file = 'test_files/masses.annotated.reformat.tsv'
-    output = 'test_files/annotated.csv'
+    output = 'test_files/annotated.tsv'
 
     df = masstrix_tsv(file)
     df = cleanup_cols(df)
@@ -184,4 +184,4 @@ if __name__ == "__main__":
 
     final_df = pd.concat([df, df2], axis=1, sort=False)
 
-    final_df.to_csv(output, index=False)
+    final_df.to_csv(output, index=False, sep='\t')
