@@ -108,7 +108,7 @@ def annotate(id):
     return (MC, C, SC, KS)
 
 
-def annotate_cell(cell):
+def annotate_cell(cell, progress=Progress(1)):
     cell = list(cell.split("#"))
     MC,C,SC,KS = [],[],[],[]
     for code in cell:
@@ -163,6 +163,10 @@ def cleanup_cols(df, isotopes=True, uniqueID=True, columns=None):
     if columns is not None:
         col_names.extend(columns)
     return df.drop(col_names, axis=1)
+
+kegg2lipidmaps = kegg_2_lipidmaps()
+hmdb2kegg = hmdb_2_kegg()
+kegg2knapsack = kegg_2_knapsack()
 
 if __name__ == "__main__":
     #### Run this section to create cache folder and necessary dictionary for convertion ####
