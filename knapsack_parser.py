@@ -18,7 +18,7 @@ def ks_update(ks_id):
     times = 0
     while times<3:
         try:
-            f = requests.get('http://kanaya.naist.jp/knapsack_jsp/information.jsp?sname=C_ID&word=' + ks_id)
+            f = requests.get('http://www.knapsackfamily.com/knapsack_core/information.php?word=' + ks_id)
             # Testar se guarda o ficheiro
             with open('cache/knapsack/'+ks_id ,'wb') as file:
                 file.write(f.content)
