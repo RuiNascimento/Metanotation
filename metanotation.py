@@ -97,10 +97,10 @@ def annotate(id):
         if id in kegg2lipidmaps:
           MC, C, SC, TC = lipidmaps(kegg2lipidmaps[id])
         else:
-          MC, C, SC = Kegg(id).get_classes()
+          MC, C, SC = Kegg(id, blacklist=blacklist).get_classes()
     elif id.startswith('H'):
         if id in hmdb2kegg:
-          MC, C, SC = (Kegg(hmdb2kegg[id]).get_classes())
+          MC, C, SC = (Kegg(hmdb2kegg[id], blacklist=blacklist).get_classes())
         else:
           pass
     elif id.startswith('L'):
@@ -168,6 +168,7 @@ kegg2lipidmaps = kegg_2_lipidmaps()
 hmdb2kegg = hmdb_2_kegg()
 kegg2knapsack = kegg_2_knapsack()
 
+
 if __name__ == "__main__":
     #### Run this section to create cache folder and necessary dictionary for convertion ####
     # Create local cache folders if they dont exist
@@ -180,6 +181,13 @@ if __name__ == "__main__":
 
     file = 'test_files/masses.annotated.reformat.tsv'
     output = 'test_files/annotated.tsv'
+
+    blacklist=[]
+    with open('blacklist.txt', 'r') as f:
+        x = f.read()
+        x = x.split('\n')
+        for y in x:
+            blacklist.append(y)
 
     df = masstrix_tsv(file)
     df = cleanup_cols(df)

@@ -13,7 +13,7 @@ class Kegg:
             var.brite()         - only parses the brite class to var.dict['BRITE']
             var.get_classes()   - return classes, parse brite in order to get classes (var.brite())
     '''
-    def __init__(self,kegg_id):
+    def __init__(self,kegg_id,blacklist=None):
         self.name = kegg_id
         raw = []
         if update_cache('cache/kegg/'+kegg_id, days=30):
@@ -29,6 +29,7 @@ class Kegg:
             self.raw_dict[splited[x]] = splited[x+1]
         self.dict = {}
         self.classes = {}
+        self.blacklist = blacklist
 
     def update(self,kegg_id):
         times = 0
@@ -131,6 +132,11 @@ class Kegg:
             cur_ld = next(line_yielder)
             result, next_line = self.create_dict(cur_ld, line_yielder)
             self.dict['BRITE'] = result
+            if self.blacklist:
+                for key, v in self.dict['BRITE'].copy().items():
+                    brite = key.split(":")[1].split("]")[0]
+                    if brite in self.blacklist:
+                        del self.dict['BRITE'][key]
 
     def brite(self, verbose=False):
         '''
@@ -150,6 +156,11 @@ class Kegg:
             cur_ld = next(line_yielder)
             result, next_line = self.create_dict(cur_ld, line_yielder)
             self.dict['BRITE'] = result
+        if self.blacklist:
+            for key, v in self.dict['BRITE'].copy().items():
+                brite = key.split(":")[1].split("]")[0]
+                if brite in self.blacklist:
+                    del self.dict['BRITE'][key]
         if verbose:
             return self.dict['BRITE']
 

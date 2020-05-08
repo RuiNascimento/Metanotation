@@ -12,3 +12,7 @@ cache/dblink/
 # Test cache
 cache.bak/*
 *.ipynb
+
+anotar/*
+POS*
+NEG*
