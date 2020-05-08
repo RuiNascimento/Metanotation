@@ -84,7 +84,7 @@ def kegg_2_knapsack():
 
 # Function to check id convertion and choose the appropriate id for annotation
 # Retirar os return dos if e apenas ter um return no final ??
-def annotate(id):
+def annotate(id, blacklist=None):
     '''
     Annotate an id based on database and relation to other databases
     Check from with database the compound is from, check if there are any other convertion to other databases (if necessary)
@@ -108,11 +108,11 @@ def annotate(id):
     return (MC, C, SC, KS)
 
 
-def annotate_cell(cell, progress=Progress(1)):
+def annotate_cell(cell, progress=Progress(1), blacklist=None):
     cell = list(cell.split("#"))
     MC,C,SC,KS = [],[],[],[]
     for code in cell:
-        result = annotate(code)
+        result = annotate(code, blacklist=blacklist)
         MC.append(result[0])
         C.append(result[1])
         SC.append(result[2])

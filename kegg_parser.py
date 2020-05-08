@@ -134,7 +134,7 @@ class Kegg:
             self.dict['BRITE'] = result
             if self.blacklist:
                 for key, v in self.dict['BRITE'].copy().items():
-                    brite = key.split(":")[1].split("]")[0]
+                    brite = brite = re.findall(r'br\d+',key)[0]
                     if brite in self.blacklist:
                         del self.dict['BRITE'][key]
 
@@ -158,7 +158,7 @@ class Kegg:
             self.dict['BRITE'] = result
         if self.blacklist:
             for key, v in self.dict['BRITE'].copy().items():
-                brite = key.split(":")[1].split("]")[0]
+                brite = brite = re.findall(r'br\d+',key)[0]
                 if brite in self.blacklist:
                     del self.dict['BRITE'][key]
         if verbose:
